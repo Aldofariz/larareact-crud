@@ -16,7 +16,7 @@ interface Props {
 }
 
 export default function PostFormModal({ isOpen, closeModal, post }: Props) {
-    const [ formData, setFormData ] = useState<Post> ({title: "", content: "", picture: ""});
+    const [ formData, setFormData ] = useState<Post>({title: "", content: "", picture: ""});
     const [ selectedFiles, setSelectedFile ] = useState<File | null>(null);
     const [ preview, setPreview] = useState<string>("");
 
@@ -25,12 +25,12 @@ export default function PostFormModal({ isOpen, closeModal, post }: Props) {
 
 useEffect(()=> {
     if(post) {
-        setFormData ({ title: post.title, content: post.content, picture: post.picture || ""});
-        setPreview (post.picture || "");
+        setFormData({ title: post.title, content: post.content, picture: post.picture || ""});
+        setPreview(post.picture || "");
         setSelectedFile(null);
     } else {
-        setFormData ({ title: "", content: "", picture: ""});
-        setPreview ("");
+        setFormData({ title: "", content: "", picture: ""});
+        setPreview("");
         setSelectedFile(null);
     }
 }, [post]);
@@ -53,6 +53,42 @@ const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 };
 
 // code ini diketik selanjutnya untuk handle input form
+const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const data = new FormData();
+    data.append('title', formData.title);
+    data.append('content', formData.content);
+    if(selectedFiles){
+      data.append("picture", selectedFiles)
+    }
+
+    if (post?.id) {
+      data.append("_method", "PUT");
+      router.post('/posts/${post.id}', data,  {
+        onSuccess: () => {
+          closeModal();
+          router.reload();
+        },
+        onError: (errors) => {
+          console.error(errors.message || "gagal kirim data")
+        },
+      })
+    } else {
+      router.post("/posts", data, {
+        onSuccess: () => {
+          closeModal();
+          router.reload();
+        },
+        onError: (errors) => {
+          console.error(errors.message || "gagal kirim data")
+        },
+      });
+    }
+};
+
+
+
 
 if (!isOpen) return null;
 
@@ -60,7 +96,7 @@ if (!isOpen) return null;
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-xl">
         <h2 className="text-lg font-semibold mb-4">{post ? "Edit Post" : "Add Post"}</h2>
-        <form encType="multipart/form-data">
+        <form onSubmit={handleSubmit} encType="multipart/form-data">
           <div className="mb-3">
             <label className="block text-sm font-medium">Judul</label>
             <input
@@ -99,12 +135,11 @@ if (!isOpen) return null;
             </div>
           )}
           <div className="flex justify-end gap-2">
-            <button type="button" onClick={closeModal} className="px-4 py-2 bg-gray-500 text-white rounded">Batal</button>
+            <button type="button" onClick={closeModal} className="px-4 py-2 bg-red-500 text-white rounded">Batal</button>
             <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded">{post ? "Ubah" : "Input"}</button>
           </div>
         </form>
       </div>
     </div>
   );
-
 }
