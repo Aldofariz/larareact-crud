@@ -1,5 +1,6 @@
 import { useEffect, useState  } from "react";
 import { router } from "@inertiajs/react";
+import { Toaster, toast } from "sonner";
 
 
 interface Post {
@@ -65,12 +66,14 @@ const handleSubmit = (e: React.FormEvent) => {
 
     if (post?.id) {
       data.append("_method", "PUT");
-      router.post('/posts/${post.id}', data,  {
+      router.post(`/posts/${post.id}`, data,  {
         onSuccess: () => {
           closeModal();
+          toast.success("Data Berhasil Disimpan")
           router.reload();
         },
         onError: (errors) => {
+          toast.error("Data Gagal Disimpan")
           console.error(errors.message || "gagal kirim data")
         },
       })
@@ -78,9 +81,11 @@ const handleSubmit = (e: React.FormEvent) => {
       router.post("/posts", data, {
         onSuccess: () => {
           closeModal();
+          toast.success("Data Berhasil disimpan")
           router.reload();
         },
         onError: (errors) => {
+          toast.error("Data Gagal disimpan")
           console.error(errors.message || "gagal kirim data")
         },
       });

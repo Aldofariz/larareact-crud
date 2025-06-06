@@ -40,4 +40,34 @@ class PostController extends Controller
 
         return redirect()->route('posts.index')->with('success', 'Data berhasil disimpan');
     }
+
+    //method untuk ubah data
+    public function update(Request $request, Post $post) {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
+            'picture' => 'nullable|image|max:2048'
+        ]);
+
+        $data = $request->only(['title', 'content']);
+
+        if($request->hasFile('picture')){
+            $file = $request->file('picture');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            // Store the file in the "public/uploads" directory
+            $path = $file->storeAs('uploads', $filename, 'public');
+            $data['picture'] = '/storage/' . $path;
+        }
+
+        $post->update($data);
+        return redirect()->route('posts.index')->with('success', 'Data berhasil diubah');
+    } 
+
+    // method untuk hapus data
+    public function destroy(Post $post) {
+        $post->delete();
+
+        return redirect()->route('posts.index')->with('success', 'Data berhasil dihapus');
+    }
+
 }

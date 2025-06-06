@@ -1,9 +1,10 @@
 import React from "react";
 import { useState } from "react";
-import { usePage, Head } from "@inertiajs/react";
+import { usePage, Head, router } from "@inertiajs/react";
 import AppLayout from "@/layouts/app-layout";
 import PostFormModal from "@/components/post-form-modal";
 import appLayout from "@/layouts/app-layout";
+import { Toaster, toast } from "sonner";
 
 
 export default function Posts() {
@@ -19,9 +20,24 @@ export default function Posts() {
         setIsModalOpen(true);
     };
 
+    //code untuk hapus data
+    const handleDelete = (id: number) => {
+        router.delete(`/posts/${id}`, {
+            onSuccess: () => {
+                toast.success("Data Berhasil Dihapus");
+                router.reload();
+            },
+            onError: () => {
+                toast.error("Data Gagal Dihapus");
+                console.error("Gagal Hapus");
+            },
+        });
+    };
+
     return (
         <AppLayout>
             <Head title="apps crud"/>
+            <Toaster position="top-right" richColors></Toaster>
             <div className="flex flex-col gap-6 p-6 bg-white text-black shadow-lg rounded-xl">
                 <div className="flex justify-end">
                     <button onClick={() => openModal()} className="bg-green-600 text-white rounded px-3 py-1 text-sm hover:bg-green-700 transition">Tambah Data</button>
@@ -44,8 +60,8 @@ export default function Posts() {
                                 <td className="p-3">{post.title}</td>
                                 <td className="p-3">{post.content}</td>
                                 <td className="p-3 flex gap-2">
-                                    <button className="bg-blue-500 text-sm text-white px-3 py-1 rounded">Edit</button>
-                                    <button className="bg-red-500 text-sm text-white px-3 py-1 rounded">Delete</button>
+                                    <button onClick={() => openModal(post)} className="bg-blue-500 text-sm text-white px-3 py-1 rounded">Edit</button>
+                                    <button onClick={() => handleDelete(post.id)} className="bg-red-500 text-sm text-white px-3 py-1 rounded">Delete</button>
                                 </td>
                                 </tr>
                             ))
